@@ -8,7 +8,8 @@ import Display from "./components/DisplayComponents/Display";
 import Spec from "jest-jasmine2/build/jasmine/Spec";
 
 function App() {
-  const [displayState, setDisplayState] = useState(0);
+  const [displayState, setDisplayState] = useState("");
+  const [inputState, setInputState] = useState("");
   
   return (
     <div className="container">
@@ -23,20 +24,59 @@ function App() {
   );
 
   function numberPressed(number) {
-    console.log("Got Number Press!: " + number);
-    setDisplayState(number);
+    if (isOperatorPending()) {
+      setDisplayState(number);
+    }
+    else {
+      setDisplayState(displayState + number);
+    }
+    
+    setInputState(inputState + number);
+  }
+
+  function isOperatorPending() {
+    return (inputState.match(/[+\-*/]$/) !== null);
   }
 
   function operatorPressed(operator) {
-    console.log("Got Operator Press!: " + operator);
-    setDisplayState(operator);
+    if (inputState !== "") {
+      switch (operator) {
+        case "+":
+        case "-":
+        case "/":
+        case "*":
+          operatorAction(operator);
+          break;
+        case "=":
+          evaluateInput();
+          break;
+      }
+    }
+  }
+
+  function operatorAction(operator) {
+    setInputState(inputState + operator);
+  }
+
+  function evaluateInput() {
+    if (inputState.length > 0) {
+      const result = eval(inputState);
+      setDisplayState(result);
+      setInputState(String(result));
+    }
   }
 
   function specialPressed(special) {
-    console.log("Got Special Press!: " + special);
-    setDisplayState(special);
+    switch (special) {
+      case "C":
+        setDisplayState("");
+        setInputState("");
+        break;
+      case "+/-":
+      case "%":
+        break;
+    }
   }
-
 }
 
 export default App;
